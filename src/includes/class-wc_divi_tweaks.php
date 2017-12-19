@@ -122,12 +122,13 @@ class Wc_divi_tweaks {
 				$tweak_index = $directory.$file_folder.'/'.$file_folder.'.php';
 				if(is_file($tweak_index))include $tweak_index;
 			}
-			else if(is_file($directory.$file_folder))include $directory.$file_folder;
+			else if(is_file($directory.$file_folder)) include $directory.$file_folder;
 		}
 
 		$this->tweak_list = apply_filters('wcdt_add_tweak',array());
 		foreach ($this->tweak_list as $slug => $tweak) {
 			if(!isset($this->tweak_active[$tweak['slug']])) $this->tweak_active[$tweak['slug']] = false;
+			/* Rewrite actives */$this->tweak_active[$tweak['slug']] = true;
 		}
 
 		update_option('tweak_active',$this->tweak_active);

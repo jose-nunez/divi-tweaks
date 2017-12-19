@@ -17,7 +17,7 @@
  * Plugin URI:        webchemistry.com.au
  * Description:       Cool tweaks for all your Divi themes
  * Version:           1.0.0
- * Author:            Jose Nunez
+ * Author:            Jose Nunez @ Web Chemistry
  * Author URI:        webchemistry.com.au
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt

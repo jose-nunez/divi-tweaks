@@ -17,9 +17,16 @@
 
 <div>
 	
-	<?php print_r(get_option('tweak_active')); ?>
-	<?php echo do_shortcode('[holishort]'); ?>
-	<?php echo do_shortcode('[otrotweakshort]'); ?>
-	<?php echo do_shortcode('[particles_short]'); ?>
+	<?php 
+	
+	echo '<pre>';print_r(apply_filters('wcdt_add_tweak'));echo '</pre>';
+
+	print_r(get_option('tweak_active')); 
+	echo do_shortcode('[holishort]');
+	echo do_shortcode('[otrotweakshort]'); 
+	echo do_shortcode('[particles_short]'); 
+	echo do_shortcode('[testmodule_short]'); 
+
+	?>
 
 </div>

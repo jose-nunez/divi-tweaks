@@ -61,19 +61,7 @@ class Wc_divi_tweaks_Admin {
 	 */
 	public function enqueue_styles() {
 
-		/**
-		 * This function is provided for demonstration purposes only.
-		 *
-		 * An instance of this class should be passed to the run() function
-		 * defined in Wc_divi_tweaks_Loader as all of the hooks are defined
-		 * in that particular class.
-		 *
-		 * The Wc_divi_tweaks_Loader will then create the relationship
-		 * between the defined hooks and the functions defined in this
-		 * class.
-		 */
-
-		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/wc_divi_tweaks-admin.css', array(), $this->version, 'all' );
+		// wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/wc_divi_tweaks-admin.css', array(), $this->version, 'all' );
 
 	}
 
@@ -83,7 +71,7 @@ class Wc_divi_tweaks_Admin {
 	 * @since    1.0.0
 	 */
 	public function enqueue_scripts() {
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/wc_divi_tweaks-admin.js', array( 'jquery' ), $this->version, false );
+		// wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/wc_divi_tweaks-admin.js', array( 'jquery' ), $this->version, false );
 	}
 
 	/**
@@ -94,6 +82,7 @@ class Wc_divi_tweaks_Admin {
 	public function add_menu(){
 		// add_menu_page('Divi Tweaks','Divi Tweaks','administrator',__FILE__,array($this,'settings_page'),'');
 		add_submenu_page('options-general.php','Divi Tweaks','Divi Tweaks','administrator',__FILE__,array($this,'settings_page'));
+		// add_submenu_page($this->is_divi()? 'et_divi_options' : 'options-general.php','Divi Tweaks','Divi Tweaks','administrator',__FILE__,array($this,'settings_page'));
 	}
 	/**
 	 * Shows main admin page.
@@ -106,6 +95,19 @@ class Wc_divi_tweaks_Admin {
 		}
 
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . '/admin/partials/wc_divi_tweaks-admin-display.php';
+	}
+
+	private function is_divi() {	
+		// Check template name
+		$template = get_template();
+		if (strpos($template, 'Divi')!==false) { return true; }
+		
+		// Check theme name
+		$theme = wp_get_theme($template);
+		if (strpos(@$theme->Name, 'Divi')!==false) { return true; }
+		
+		// Doesn't seem to be Divi Theme
+		return false;
 	}
 
 }
