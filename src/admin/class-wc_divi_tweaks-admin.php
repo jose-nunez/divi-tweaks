@@ -80,23 +80,16 @@ class Wc_divi_tweaks_Admin {
 	 * @since    1.0.0
 	 */
 	public function add_menu(){
-		// add_menu_page('Divi Tweaks','Divi Tweaks','administrator',__FILE__,array($this,'settings_page'),'');
-		add_submenu_page('options-general.php','Divi Tweaks','Divi Tweaks','administrator',__FILE__,array($this,'settings_page'));
-		// add_submenu_page($this->is_divi()? 'et_divi_options' : 'options-general.php','Divi Tweaks','Divi Tweaks','administrator',__FILE__,array($this,'settings_page'));
+		add_submenu_page(
+			'options-general.php',
+			// $this->is_divi()? 'et_divi_options' : 'options-general.php',
+			'Divi Tweaks',
+			'Divi Tweaks',
+			'administrator',
+			$this->plugin_name,
+			array($this,'settings_page')
+		);
 	}
-	/**
-	 * Shows main admin page.
-	 *
-	 * @since    1.0.0
-	 */
-	public function settings_page(){
-		if ( !current_user_can( 'manage_options' ) )  {
-			wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
-		}
-
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . '/admin/partials/wc_divi_tweaks-admin-display.php';
-	}
-
 	private function is_divi() {	
 		// Check template name
 		$template = get_template();
@@ -109,5 +102,166 @@ class Wc_divi_tweaks_Admin {
 		// Doesn't seem to be Divi Theme
 		return false;
 	}
+
+
+
+	/**
+	 * Shows main admin page.
+	 *
+	 * @since    1.0.0
+	 */
+	public function settings_page(){
+		if ( !current_user_can( 'manage_options' ) )  {
+			wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
+		}
+		// require_once plugin_dir_path( dirname( __FILE__ ) ) . '/admin/partials/wc_divi_tweaks-admin-display.php';
+		?>
+		
+		<div class="wrap">
+			<h1>Divi Tweaks</h1>
+			<form method="post" action="options.php">
+
+			<?php
+				// This prints out all hidden setting fields
+				
+				settings_fields( 'wc_divi_tweaks_group' );
+				do_settings_sections( 'wc_divi_tweaks_settings_1' );
+				do_settings_sections( 'wc_divi_tweaks_settings_2' );
+				submit_button('Go Forrest');
+			?>
+			</form>
+			
+			<p>Developed by <a href="https://webchemistry.com.au" target="_blank"><img src="<?=plugins_url('../public/img/wc-logo.png',__FILE__)?>" style="vertical-align: middle;" alt="Web Chemistry"></a></p>
+		</div>
+
+		<?php 
+	}
+
+
+	public function admin_init(){
+
+		// die('toy llamando al menos!!');
+
+		register_setting(
+			'wc_divi_tweaks_group', // Option group
+			'wc_divi_tweaks_option', // Option name
+			array( $this, 'sanitize' ) // Sanitize
+		);
+
+		add_settings_section(
+			'wc_divi_tweaks_settings_section_1', // ID
+			'First options section', // Title
+			array( $this, 'print_section_info' ), // Callback
+			'wc_divi_tweaks_settings_1' // Page
+		);
+
+		add_settings_field(
+			'field11', // ID
+			'<label for="field11">This is the field 11</label>', // Title
+			array( $this, 'field11' ), // Callback
+			'wc_divi_tweaks_settings_1', // Page
+			'wc_divi_tweaks_settings_section_1' // Section
+		);
+		add_settings_field(
+			'field12', // ID
+			'<label for="field12">This is the field 12</label>', // Title
+			array( $this, 'field12' ), // Callback
+			'wc_divi_tweaks_settings_1', // Page
+			'wc_divi_tweaks_settings_section_1' // Section
+		);
+
+
+
+		add_settings_section(
+			'wc_divi_tweaks_settings_section_2', // ID
+			'Second options section', // Title
+			array( $this, 'print_section_info' ), // Callback
+			'wc_divi_tweaks_settings_2' // Page
+		);
+
+		add_settings_field(
+			'field21', // ID
+			'<label for="field21">This is the field 21</label>', // Title
+			array( $this, 'field21' ), // Callback
+			'wc_divi_tweaks_settings_2', // Page
+			'wc_divi_tweaks_settings_section_2' // Section
+		);
+		add_settings_field(
+			'field22', // ID
+			'<label for="field22">This is the field 22</label>', // Title
+			array( $this, 'field22' ), // Callback
+			'wc_divi_tweaks_settings_2', // Page
+			'wc_divi_tweaks_settings_section_2' // Section
+		);
+
+	}
+
+	/**
+	 * Sanitize each setting field as needed
+	 *
+	 * @param array $input Contains all settings fields as array keys
+	 */
+	public function sanitize( $input )
+	{
+		// return $input;
+		$new_input = array();
+		if( isset( $input['field11'] ) ) $new_input['field11'] = boolval( $input['field11'] );
+		if( isset( $input['field12'] ) ) $new_input['field12'] = absint( $input['field12'] );
+		
+		if( isset( $input['field21'] ) ) $new_input['field21'] = boolval( $input['field21'] );
+		if( isset( $input['field22'] ) ) $new_input['field22'] = absint( $input['field22'] );
+		return $new_input;
+	}
+
+	/**
+	 * Print the Section text
+	 */
+	public function print_section_info(){
+		print '<p style="max-width: 600px;"><strong>This</strong> is some section info</p>';
+	}
+	
+	
+	public function field12(){
+		$options = get_option( 'wc_divi_tweaks_option' );
+		echo    '<label><input type="radio" name="wc_divi_tweaks_option[field12]" value="1" ' . checked(1, $options['field12'], false) . '> Val 1</label>'
+				.'<br /><br />'
+				.'<label><input type="radio" name="wc_divi_tweaks_option[field12]" value="2" ' . checked(2, $options['field12'], false) . '> Val 2</label>'
+				.'<br /><br />'
+				.'<label><input type="radio" name="wc_divi_tweaks_option[field12]" value="0" ' . checked(0, $options['field12'], false) . '> Val 0</label>'
+				;
+	}
+
+	public function field11(){
+		$options = get_option( 'wc_divi_tweaks_option' );
+		echo '<input type="checkbox" id="field11" name="wc_divi_tweaks_option[field11]"  value="true" ' . checked(true, $options['field11'], false ) . '/>';
+	}
+
+
+	public function field22(){
+		$options = get_option( 'wc_divi_tweaks_option' );
+		echo    '<label><input type="radio" name="wc_divi_tweaks_option[field22]" value="1" ' . checked(1, $options['field22'], false) . '> Val 1</label>'
+				.'<br /><br />'
+				.'<label><input type="radio" name="wc_divi_tweaks_option[field22]" value="2" ' . checked(2, $options['field22'], false) . '> Val 2</label>'
+				.'<br /><br />'
+				.'<label><input type="radio" name="wc_divi_tweaks_option[field22]" value="0" ' . checked(0, $options['field22'], false) . '> Val 0</label>'
+				;
+	}
+
+	public function field21(){
+		$options = get_option( 'wc_divi_tweaks_option' );
+		echo '<input type="checkbox" id="field21" name="wc_divi_tweaks_option[field21]"  value="true" ' . checked(true, $options['field21'], false ) . '/>';
+	}
+
+
+
+
+
+
+
+
+
+
+
+
 
 }

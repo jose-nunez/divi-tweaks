@@ -34,7 +34,7 @@ class Wc_divi_tweaks {
 
 	public function __construct() {
 
-		$this->plugin_name = 'wc_divi_tweaks';
+		$this->plugin_name = 'divi-tweaks';
 		$this->version = '1.0.0';
 
 		$this->tweak_list;
@@ -75,6 +75,7 @@ class Wc_divi_tweaks {
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 
 		$this->loader->add_action( 'admin_menu', $plugin_admin, 'add_menu' );
+		$this->loader->add_action( 'admin_init', $plugin_admin, 'admin_init' );
 
 	}
 
