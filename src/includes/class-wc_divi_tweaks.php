@@ -43,12 +43,12 @@ class Wc_divi_tweaks {
 
 		$this->load_dependencies();
 		$this->set_locale();
-		$this->define_admin_hooks();
-		$this->define_public_hooks();
 
 		$this->load_tweaks_satus();
 		$this->lookup_tweaks();
 
+		$this->define_admin_hooks();
+		$this->define_public_hooks();
 	}
 
 	private function load_dependencies() {
@@ -69,7 +69,7 @@ class Wc_divi_tweaks {
 
 	private function define_admin_hooks() {
 
-		$plugin_admin = new Wc_divi_tweaks_Admin( $this->get_plugin_name(), $this->get_version() );
+		$plugin_admin = new Wc_divi_tweaks_Admin( $this->get_plugin_name(), $this->get_version() , $this->tweak_list , $this->tweak_active);
 
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
@@ -126,13 +126,15 @@ class Wc_divi_tweaks {
 			else if(is_file($directory.$file_folder)) include $directory.$file_folder;
 		}
 
+
 		$this->tweak_list = apply_filters('wcdt_add_tweak',array());
+		/*
 		foreach ($this->tweak_list as $slug => $tweak) {
 			if(!isset($this->tweak_active[$tweak['slug']])) $this->tweak_active[$tweak['slug']] = false;
-			/* Rewrite actives */$this->tweak_active[$tweak['slug']] = true;
+			$this->tweak_active[$tweak['slug']] = true; //Rewrite actives
 		}
+		update_option('tweak_active',$this->tweak_active);*/
 
-		update_option('tweak_active',$this->tweak_active);
 		do_action('wcdt_init_tweak',$this->tweak_active);
 	}
 }

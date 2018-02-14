@@ -47,11 +47,13 @@ class Wc_divi_tweaks_Admin {
 	 * @param      string    $plugin_name       The name of this plugin.
 	 * @param      string    $version    The version of this plugin.
 	 */
-	public function __construct( $plugin_name, $version ) {
+	public function __construct( $plugin_name, $version , $tweak_list , $tweak_active) {
 
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
 
+		$this->tweak_list = $tweak_list;
+		$this->tweak_active = $tweak_active;
 	}
 
 	/**
@@ -123,10 +125,15 @@ class Wc_divi_tweaks_Admin {
 
 			<?php
 				// This prints out all hidden setting fields
-				
+				// echo '<pre>';print_r($this->tweak_list);echo '</pre>';
+				// echo '<pre>';print_r($this->tweak_active);echo '</pre>';
 				settings_fields( 'wc_divi_tweaks_group' );
-				do_settings_sections( 'wc_divi_tweaks_settings_1' );
-				do_settings_sections( 'wc_divi_tweaks_settings_2' );
+
+				foreach ($this->settings as $key => $setting) {
+					do_settings_sections( $setting );
+					echo '<hr />';
+				}
+
 				submit_button('Go Forrest');
 			?>
 			</form>
@@ -147,53 +154,58 @@ class Wc_divi_tweaks_Admin {
 			'wc_divi_tweaks_option', // Option name
 			array( $this, 'sanitize' ) // Sanitize
 		);
-
-		add_settings_section(
-			'wc_divi_tweaks_settings_section_1', // ID
-			'First options section', // Title
-			array( $this, 'print_section_info' ), // Callback
-			'wc_divi_tweaks_settings_1' // Page
+		register_setting(
+			'wc_divi_tweaks_group', // Option group
+			'tweak_active', // Option name
+			array( $this, 'sanitize' ) // Sanitize
 		);
 
-		add_settings_field(
-			'field11', // ID
-			'<label for="field11">This is the field 11</label>', // Title
-			array( $this, 'field11' ), // Callback
-			'wc_divi_tweaks_settings_1', // Page
-			'wc_divi_tweaks_settings_section_1' // Section
-		);
-		add_settings_field(
-			'field12', // ID
-			'<label for="field12">This is the field 12</label>', // Title
-			array( $this, 'field12' ), // Callback
-			'wc_divi_tweaks_settings_1', // Page
-			'wc_divi_tweaks_settings_section_1' // Section
-		);
+		foreach ($this->tweak_list as $key => $tweak) {
+			$section = 'wc_divi_tweaks_settings_section_'.$tweak['slug'];
+			$settings = 'wc_divi_tweaks_settings_'.$tweak['slug'];
+			add_settings_section(
+				$section, // ID
+				$tweak['tite'], // Title
+				array($this , 'print_section_info'), // Callback
+				$settings, // Page
+				array('description'=> $tweak['description'] )
+			);
 
+			// SET ACTIVE OR INACTIVE
+			add_settings_field(
+				$tweak['slug'], // ID
+				'<label for="'.$tweak['slug'].'">Active</label>', // Title
+				array( $this , 'tweakActiveField' ), // Callback
+				$settings, // Page
+				$section, // Section
+				array('id' => $tweak['slug'],)
+			);
 
+			// TWEAK CUSTOM SETTINGS
+			if($tweak['settings']) {
+				foreach($tweak['settings'] as $key => $setting) {
+					add_settings_field(
+						$setting['name'], // ID
+						'<label for="'.$setting['name'].'">'.$setting['description'].'</label>', // Title
+						array( $this , 'createInputField' ), // Callback
+						$settings, // Page
+						$section, // Section
+						array('id' => $setting['name'],)
+					);
+				}
+			}
+			$this->settings[] = $settings;
+		}
+	}
 
-		add_settings_section(
-			'wc_divi_tweaks_settings_section_2', // ID
-			'Second options section', // Title
-			array( $this, 'print_section_info' ), // Callback
-			'wc_divi_tweaks_settings_2' // Page
-		);
+	function createInputField($args){
+		$options = get_option( 'wc_divi_tweaks_option' );
+		echo '<input type="checkbox" id="'.$args['id'].'" name="wc_divi_tweaks_option['.$args['id'].']" ' . checked($options[$args['id']],'on', false ) . '/>';
+	}
 
-		add_settings_field(
-			'field21', // ID
-			'<label for="field21">This is the field 21</label>', // Title
-			array( $this, 'field21' ), // Callback
-			'wc_divi_tweaks_settings_2', // Page
-			'wc_divi_tweaks_settings_section_2' // Section
-		);
-		add_settings_field(
-			'field22', // ID
-			'<label for="field22">This is the field 22</label>', // Title
-			array( $this, 'field22' ), // Callback
-			'wc_divi_tweaks_settings_2', // Page
-			'wc_divi_tweaks_settings_section_2' // Section
-		);
-
+	function tweakActiveField($args){
+		$options = get_option( 'tweak_active' );
+		echo '<input type="checkbox" id="'.$args['id'].'" name="tweak_active['.$args['id'].']" ' . checked($options[$args['id']],'on', false ) . '/>';
 	}
 
 	/**
@@ -203,65 +215,22 @@ class Wc_divi_tweaks_Admin {
 	 */
 	public function sanitize( $input )
 	{
-		// return $input;
-		$new_input = array();
+		return $input;
+		/*$new_input = array();
 		if( isset( $input['field11'] ) ) $new_input['field11'] = boolval( $input['field11'] );
 		if( isset( $input['field12'] ) ) $new_input['field12'] = absint( $input['field12'] );
 		
 		if( isset( $input['field21'] ) ) $new_input['field21'] = boolval( $input['field21'] );
-		if( isset( $input['field22'] ) ) $new_input['field22'] = absint( $input['field22'] );
-		return $new_input;
+		if( isset( $input['field22'] ) ) $new_input['field22'] = absint( $input['field22'] );*/
+		// return $new_input;
 	}
 
 	/**
 	 * Print the Section text
 	 */
-	public function print_section_info(){
-		print '<p style="max-width: 600px;"><strong>This</strong> is some section info</p>';
+	public function print_section_info($args){
+		// print '<p style="max-width: 600px;"><strong>This</strong> is some section info</p>';
+		echo $args['description'];
 	}
-	
-	
-	public function field12(){
-		$options = get_option( 'wc_divi_tweaks_option' );
-		echo    '<label><input type="radio" name="wc_divi_tweaks_option[field12]" value="1" ' . checked(1, $options['field12'], false) . '> Val 1</label>'
-				.'<br /><br />'
-				.'<label><input type="radio" name="wc_divi_tweaks_option[field12]" value="2" ' . checked(2, $options['field12'], false) . '> Val 2</label>'
-				.'<br /><br />'
-				.'<label><input type="radio" name="wc_divi_tweaks_option[field12]" value="0" ' . checked(0, $options['field12'], false) . '> Val 0</label>'
-				;
-	}
-
-	public function field11(){
-		$options = get_option( 'wc_divi_tweaks_option' );
-		echo '<input type="checkbox" id="field11" name="wc_divi_tweaks_option[field11]"  value="true" ' . checked(true, $options['field11'], false ) . '/>';
-	}
-
-
-	public function field22(){
-		$options = get_option( 'wc_divi_tweaks_option' );
-		echo    '<label><input type="radio" name="wc_divi_tweaks_option[field22]" value="1" ' . checked(1, $options['field22'], false) . '> Val 1</label>'
-				.'<br /><br />'
-				.'<label><input type="radio" name="wc_divi_tweaks_option[field22]" value="2" ' . checked(2, $options['field22'], false) . '> Val 2</label>'
-				.'<br /><br />'
-				.'<label><input type="radio" name="wc_divi_tweaks_option[field22]" value="0" ' . checked(0, $options['field22'], false) . '> Val 0</label>'
-				;
-	}
-
-	public function field21(){
-		$options = get_option( 'wc_divi_tweaks_option' );
-		echo '<input type="checkbox" id="field21" name="wc_divi_tweaks_option[field21]"  value="true" ' . checked(true, $options['field21'], false ) . '/>';
-	}
-
-
-
-
-
-
-
-
-
-
-
-
 
 }
